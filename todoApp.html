@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="todoApp.css">
+<link rel="stylesheet"
+	href="https://fonts.googleapis.com/css?family=Roboto">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://kit.fontawesome.com/7b9af36cde.js" crossorigin="anonymous"></script>
+	<title>Todo App</title>
+</head>
+<body>
+	<div class="box">
+		<div>
+			<p class="box_header">Todo App</p>
+		</div>
+		<div class=box_input-row>
+			<input class="box_input" type="text" id="text"
+				placeholder="Add your new todo">
+			<button class="box_add-button">+</button>
+		</div>
+		<div class=box_list-button-row>
+			<div class=box_list-button>
+				<i class="fas fa-th"></i>
+			</div>
+			<div class=box_list-button>
+				<i class="fas fa-tasks"></i>
+			</div>
+			<div class=box_list-button>
+				<i class="fas fa-list"></i>
+			</div>
+		</div>
+		<div class=box_todo-list></div>
+		<div class=box_pending-row>
+			<p class=box_pending-text>You have 4 pending tasks</p>
+			<button class="box_clear-button">Clear All</button>
+		</div>
+	</div>
+	<script>
+		$(document).ready(function(){
+			$('.box_add-button').click(function() {
+				if ($('#text').val().length != 0) {
+					let todoList = $('.box_todo-list').html();
+					let newTodo = `<div class=box_todo-item>
+						<p class=box_todo-item-text> ` + $('#text').val() + `</p>
+						<div class="box_trash-icon-container">
+							<i class="fas fa-trash box_trash-icon"></i>
+						</div>
+					</div>`;				  
+                    $('.box_todo-list').html(todoList + newTodo);
+                    $('#text').val("");
+				} else alert("Enter some Text!");
+			});
+		});
+	</script>
+</body>
+</html>
