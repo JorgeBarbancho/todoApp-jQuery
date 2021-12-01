@@ -61,7 +61,7 @@ body {
     border-radius: 5px
 }
 
-.todo-component .todo-component__add-button {
+.todo-component .todo-component__button {
     width: 15%;
     background-color: #9146ea;
     border-radius: 5px;
@@ -87,8 +87,10 @@ body {
 .todo-component .todo-component__todo-item {
     display: flex;
     margin-bottom: 10px;
+    padding-left: 20px;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
+    align-items: center;
     background-color: #f2f2f2;
     border-radius: 10px;
 }
@@ -102,6 +104,7 @@ body {
 .todo-component .todo-component__trash-icon-container {
     display: none;
     width: 20%;
+    align-self: stretch;
     justify-content: center;
     align-items: center;
     background-color: #eb4c3c;
@@ -127,14 +130,4 @@ body {
 .todo-component .todo-component__pending-text {
     width: 70%;
     font-size: 16px;
-}
-
-.todo-component .todo-component__clear-button {
-    padding: 5px;
-    width: 25%;
-    background-color: #9146ea;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
 }
