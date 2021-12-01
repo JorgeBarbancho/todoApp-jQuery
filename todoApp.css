@@ -49,20 +49,19 @@ body {
 .todo-component .todo-component__input-row {
     display: flex;
     margin-bottom: 10px;
-    width: 100%;
     flex-direction: row;
     justify-content: space-between;
 }
 
 .todo-component .todo-component__input {
     padding: 10px;
-    width: 80%;
+    width: 90%;
     font-size: 18px;
     border-radius: 5px
 }
 
 .todo-component .todo-component__button {
-    width: 15%;
+    padding: 15px 20px;
     background-color: #9146ea;
     border-radius: 5px;
     color: white;
@@ -109,6 +108,10 @@ body {
     align-items: center;
     background-color: #eb4c3c;
     border-radius: 10px;
+}
+
+.todo-component .todo-component__trash-icon-container:hover {
+    display: flex;
 }
 
 .todo-component .todo-component__trash-icon {
