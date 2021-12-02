@@ -3,20 +3,23 @@ $(document).ready(function () {
 
     // Add button
     $('#add-button').click(function () {
-        if ($('#text').val().length !== 0) {
+        if ($('.todo-component__input').val().length !== 0) {
             let currentList = $('.todo-component__todo-list').html();
             let newTodo = `<div class="todo-component__todo-item">
                                 <input type="checkbox" id="checkbox">
-                                <p class="todo-component__todo-item-text"> ` + $('#text').val() + `</p>
-                                <button class="todo-component__trash-icon-container">
-                                    <i class="fas fa-trash todo-component__trash-icon"></i>
+                                <p class="todo-component__todo-item-text"> ` + $('.todo-component__input').val() + `</p>
+                                <button class="todo-component__trash-btn">
+                                    <i class="fas fa-trash todo-component__trash-btn-icon"></i>
                                 </button>
                             </div>`;
-            $('#text').val("");
+            $('.todo-component__input').val("");
             $('.todo-component__todo-list').html(currentList + newTodo);
+            $('.todo-component__warning').hide();
             pendingTasks++;
             updateTaskStatus();
-        } else alert("Enter some Text!");
+        } else {
+            $('.todo-component__warning').show();
+        };
     });
 
     // Clear button
@@ -37,9 +40,7 @@ $(document).ready(function () {
 
     // Show all button
     $('#show-all').click(function () {
-        $('.todo-component__todo-list').children().each(function () {
-            $(this).show();
-        });
+        $('.todo-component__todo-list').children().show();
     });
 
     // Show completed button
