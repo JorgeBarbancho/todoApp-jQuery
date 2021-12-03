@@ -2,83 +2,93 @@ $(document).ready(function () {
     let pendingTasks = 0;
 
     // Add button
-    $('#add-button').click(function () {
+    $('.btn__add-btn').click(function () {
         if ($('.todo-component__input').val().length !== 0) {
-            let currentList = $('.todo-component__todo-list').html();
-            let newTodo = `<div class="todo-component__todo-item">
-                                <input type="checkbox" id="checkbox">
-                                <p class="todo-component__todo-item-text"> ` + $('.todo-component__input').val() + `</p>
-                                <button class="todo-component__trash-btn">
-                                    <i class="fas fa-trash todo-component__trash-btn-icon"></i>
-                                </button>
-                            </div>`;
+            let newTodo = $('<label class="todo-component__todo-item--shown">' +
+                '<input type="checkbox" class="todo-component__todo-item__checkbox">' +
+                '<p class="todo-component__todo-item-text">' + $('.todo-component__input').val() + '</p>' +
+                '<button class="todo-component__trash-btn">' +
+                '<i class="fas fa-trash todo-component__trash-btn-icon"></i>' +
+                '</button>' +
+                '</label>');
+            newTodo.find('.todo-component__trash-btn').click(removeTask);
+            newTodo.find('.todo-component__todo-item__checkbox').click(toggleTaskStatus)
+            $('.todo-component__todo-list').append(newTodo);
             $('.todo-component__input').val("");
-            $('.todo-component__todo-list').html(currentList + newTodo);
-            $('.todo-component__warning').hide();
+            $('.todo-component__warning--shown').removeClass("todo-component__warning--shown").addClass("todo-component__warning--hidden");
             pendingTasks++;
             updateTaskStatus();
         } else {
-            $('.todo-component__warning').show();
-        };
+            $('.todo-component__warning--hidden').removeClass("todo-component__warning--hidden").addClass("todo-component__warning--shown");
+        }
     });
 
     // Clear button
-    $('#clear-button').click(function () {
-        console.log("test");
+    $('.btn__clear-btn').click(function () {
         $('.todo-component__todo-list').html("");
         pendingTasks = 0;
         updateTaskStatus();
     });
 
-    // Remove button
-    $(document).on('click', '.todo-component__trash-icon-container', function () {
-        let taskToDelete = $(this).parent();
-        taskToDelete.remove();
-        pendingTasks--;
-        updateTaskStatus('remove')
-    });
-
     // Show all button
-    $('#show-all').click(function () {
-        $('.todo-component__todo-list').children().show();
+    $('.todo-component__list-button--show-all').click(function () {
+        $('.todo-component__todo-list')
+            .children('.todo-component__todo-item--hidden')
+            .removeClass('todo-component__todo-item--hidden')
+            .addClass('todo-component__todo-item--shown')
     });
 
     // Show completed button
-    $('#show-completed').click(function () {
-        $('.todo-component__todo-list').children().each(function () {
-            if ($(this).children('#checkbox').is(':checked')) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
+    $('.todo-component__list-button--show-completed').click(function () {
+        toggleList('completed')
     });
 
     // Show pending button
-    $('#show-pending').click(function () {
-        $('.todo-component__todo-list').children().each(function () {
-            if ($(this).children('#checkbox').is(':checked')) {
-                $(this).hide();
-            } else {
-                $(this).show();
-            }
-        });
+    $('.todo-component__list-button--show-pending').click(function () {
+        toggleList('pending')
     });
 
-    // Checkbox
-    $(document).on('click', '#checkbox', function () {
+    // Remove button
+    function removeTask() {
+        if (!$(this).siblings('.todo-component__todo-item__checkbox').is(':checked')) {
+            pendingTasks--;
+        }
+        $(this).parent().remove();
+        updateTaskStatus();
+    }
+
+    // Toggle completed/pending lists
+    function toggleList(kindOfList) {
+        $('.todo-component__todo-list').children().each(function () {
+            if ($(this).children('.todo-component__todo-item__checkbox').is(':checked')) {
+                if (kindOfList === 'completed') {
+                    $(this).removeClass('todo-component__todo-item--hidden').addClass('todo-component__todo-item--shown');
+                } else {
+                    $(this).removeClass('todo-component__todo-item--shown').addClass('todo-component__todo-item--hidden');
+                }
+            } else {
+                if (kindOfList === 'completed') {
+                    $(this).removeClass('todo-component__todo-item--shown').addClass('todo-component__todo-item--hidden');
+                } else {
+                    $(this).removeClass('todo-component__todo-item--hidden').addClass('todo-component__todo-item--shown');
+                }
+            }
+        });
+    }
+
+    // Checkbox behaviour
+    function toggleTaskStatus() {
         if ($(this).is(':checked')) {
             pendingTasks--;
         } else {
             pendingTasks++;
         }
         updateTaskStatus();
-    });
+    }
 
     // Update pending tasks
     function updateTaskStatus() {
-        let taskText = 'tasks';
-        taskText = pendingTasks === 1 ? 'task' : 'tasks';
+        let taskText = pendingTasks === 1 ? 'task' : 'tasks';
         $('.todo-component__pending-text').text(`You have ${pendingTasks} pending ${taskText}`);
     }
 });
