@@ -136,7 +136,7 @@ body {
     color: white;
 }
 
-.todo-component .todo-component__todo-item--shown:hover .todo-component__trash-btn {
+.todo-component .todo-component__todo-item:hover .todo-component__trash-btn {
     opacity: 100;
 }
 

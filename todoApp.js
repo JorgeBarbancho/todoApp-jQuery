@@ -8,7 +8,7 @@ $(function () {
         if (newInput.val().length !== 0) {
             let newTodo = $('<label class="todo-component__todo-item todo-component__todo-item--shown">' +
                 '<input type="checkbox" class="todo-component__todo-item__checkbox">' +
-                '<p class="todo-component__todo-item-text"/>' +
+                '<p class="todo-component__todo-item-text"></p>' +
                 '<button class="todo-component__trash-btn">' +
                 '<i class="fas fa-trash todo-component__trash-btn-icon"></i>' +
                 '</button>' +
