@@ -1,7 +1,7 @@
 $(document).ready(function () {
     let pendingTasks = 0;
 
-    // Add button
+    // Add new task button
     $('.btn__add-btn').click(function () {
         if ($('.todo-component__input').val().length !== 0) {
             let newTodo = $('<label class="todo-component__todo-item--shown">' +
@@ -23,14 +23,14 @@ $(document).ready(function () {
         }
     });
 
-    // Clear button
+    // Clear all tasks button
     $('.btn__clear-btn').click(function () {
         $('.todo-component__todo-list').html("");
         pendingTasks = 0;
         updateTaskStatus();
     });
 
-    // Show all button
+    // Show all tasks button
     $('.todo-component__list-button--show-all').click(function () {
         $('.todo-component__todo-list')
             .children('.todo-component__todo-item--hidden')
@@ -38,17 +38,17 @@ $(document).ready(function () {
             .addClass('todo-component__todo-item--shown')
     });
 
-    // Show completed button
+    // Show completed tasks button
     $('.todo-component__list-button--show-completed').click(function () {
         toggleList('completed')
     });
 
-    // Show pending button
+    // Show pending tasks button
     $('.todo-component__list-button--show-pending').click(function () {
         toggleList('pending')
     });
 
-    // Remove button
+    // Remove task button
     function removeTask() {
         if (!$(this).siblings('.todo-component__todo-item__checkbox').is(':checked')) {
             pendingTasks--;
@@ -92,6 +92,3 @@ $(document).ready(function () {
         $('.todo-component__pending-text').text(`You have ${pendingTasks} pending ${taskText}`);
     }
 });
-
-
-
