@@ -3,10 +3,11 @@ $(document).ready(function () {
 
     // Add new task button
     $('.btn__add-btn').click(function () {
-        if ($('.todo-component__input').val().length !== 0) {
+        let newInput = $('.todo-component__input');
+        if (newInput.val().length !== 0) {
             let newTodo = $('<label class="todo-component__todo-item--shown">' +
                 '<input type="checkbox" class="todo-component__todo-item__checkbox">' +
-                '<p class="todo-component__todo-item-text">' + $('.todo-component__input').val() + '</p>' +
+                '<p class="todo-component__todo-item-text">' + newInput.val() + '</p>' +
                 '<button class="todo-component__trash-btn">' +
                 '<i class="fas fa-trash todo-component__trash-btn-icon"></i>' +
                 '</button>' +
@@ -14,7 +15,7 @@ $(document).ready(function () {
             newTodo.find('.todo-component__trash-btn').click(removeTask);
             newTodo.find('.todo-component__todo-item__checkbox').click(toggleTaskStatus)
             $('.todo-component__todo-list').append(newTodo);
-            $('.todo-component__input').val("");
+            newInput.val("");
             $('.todo-component__warning--shown').removeClass("todo-component__warning--shown").addClass("todo-component__warning--hidden");
             pendingTasks++;
             updateTaskStatus();
