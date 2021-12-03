@@ -18,11 +18,12 @@ $(function () {
             newTodo.find('.todo-component__todo-item__checkbox').on('click', toggleTaskStatus)
             $('.todo-component__todo-list').append(newTodo);
             newInput.val("");
-            $('.todo-component__warning--shown').removeClass("todo-component__warning--shown");
+            $('.todo-component__validation-warning--shown').removeClass("todo-component__validation-warning--shown");
             pendingTasks++;
             updateTaskStatus();
+            showAllTasks();
         } else {
-            $('.todo-component__warning').addClass("todo-component__warning--shown");
+            $('.todo-component__validation-warning').addClass("todo-component__validation-warning--shown");
         }
     });
 
@@ -31,23 +32,21 @@ $(function () {
         $('.todo-component__todo-list').html("");
         pendingTasks = 0;
         updateTaskStatus();
+        showAllTasks();
     });
 
     // Show all tasks button
-    $('.todo-component__list-button--show-all').on('click', function () {
-        $('.todo-component__todo-list')
-            .children('.todo-component__todo-item--hidden')
-            .removeClass('todo-component__todo-item--hidden')
-            .addClass('todo-component__todo-item--shown')
+    $('.list-button--show-all').on('click', function () {
+        showAllTasks();
     });
 
     // Show completed tasks button
-    $('.todo-component__list-button--show-completed').on('click',function () {
+    $('.list-button--show-completed').on('click', function () {
         toggleList('completed')
     });
 
     // Show pending tasks button
-    $('.todo-component__list-button--show-pending').on('click', function () {
+    $('.list-button--show-pending').on('click', function () {
         toggleList('pending')
     });
 
@@ -60,23 +59,42 @@ $(function () {
         updateTaskStatus();
     }
 
+    // Show all tasks
+    function showAllTasks() {
+        $('.todo-component__todo-list')
+            .children('.todo-component__todo-item--hidden')
+            .removeClass('todo-component__todo-item--hidden')
+            .addClass('todo-component__todo-item--shown');
+        $('.list-button--show-all').addClass('list-button--selected');
+        $('.list-button--show-completed').removeClass('list-button--selected');
+        $('.list-button--show-pending').removeClass('list-button--selected');
+    }
+
     // Toggle completed/pending lists
     function toggleList(kindOfList) {
-        $('.todo-component__todo-list').children().each(function () {
-            if ($(this).children('.todo-component__todo-item__checkbox').is(':checked')) {
-                if (kindOfList === 'completed') {
+        if (kindOfList === 'completed') {
+            $('.list-button--show-completed').addClass('list-button--selected');
+            $('.list-button--show-all').removeClass('list-button--selected');
+            $('.list-button--show-pending').removeClass('list-button--selected');
+            $('.todo-component__todo-list').children().each(function () {
+                if ($(this).children('.todo-component__todo-item__checkbox').is(':checked')) {
                     $(this).removeClass('todo-component__todo-item--hidden').addClass('todo-component__todo-item--shown');
                 } else {
                     $(this).removeClass('todo-component__todo-item--shown').addClass('todo-component__todo-item--hidden');
                 }
-            } else {
-                if (kindOfList === 'completed') {
+            });
+        } else {
+            $('.list-button--show-pending').addClass('list-button--selected');
+            $('.list-button--show-all').removeClass('list-button--selected');
+            $('.list-button--show-completed').removeClass('list-button--selected');
+            $('.todo-component__todo-list').children().each(function () {
+                if ($(this).children('.todo-component__todo-item__checkbox').is(':checked')) {
                     $(this).removeClass('todo-component__todo-item--shown').addClass('todo-component__todo-item--hidden');
                 } else {
                     $(this).removeClass('todo-component__todo-item--hidden').addClass('todo-component__todo-item--shown');
                 }
-            }
-        });
+            });
+        };
     }
 
     // Checkbox behaviour

@@ -59,7 +59,7 @@ body {
     border-radius: 5px
 }
 
-.todo-component__warning {
+.todo-component .todo-component__validation-warning {
     position: absolute;
     visibility: hidden;
     opacity: 0;
@@ -67,25 +67,30 @@ body {
     font-size: 18px;
 }
 
-.todo-component__warning.todo-component__warning--shown {
+.todo-component .todo-component__validation-warning.todo-component__validation-warning--shown {
     position: relative;
     visibility: visible;
     opacity: 1;
 }
 
-.todo-component .todo-component__list-button-row {
+.todo-component .list-button-row {
     display: flex;
     margin: 10px;
     flex-direction: row;
 }
 
-.todo-component .todo-component__list-button {
+.todo-component .list-button {
     display: flex;
     margin: 5px;
+    padding: 5px;
     justify-content: center;
     align-items: center;
     font-size: 20px;
     cursor: pointer;
+}
+
+.todo-component .list-button.list-button--selected {
+    border: 1px solid #9146ea;
 }
 
 .todo-component .todo-component__todo-item{
