@@ -94,7 +94,7 @@ $(function () {
                     $(this).removeClass('todo-component__todo-item--hidden').addClass('todo-component__todo-item--shown');
                 }
             });
-        };
+        }
     }
 
     // Checkbox behaviour
