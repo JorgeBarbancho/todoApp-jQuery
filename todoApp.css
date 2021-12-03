@@ -45,7 +45,7 @@ body {
     font-weight: bold;
 }
 
-.todo-component .todo-component__input-row {
+.todo-component .todo-component__input-form {
     display: flex;
     margin-bottom: 10px;
     flex-direction: row;
@@ -59,7 +59,7 @@ body {
     border-radius: 5px
 }
 
-.todo-component__warning--hidden {
+.todo-component__warning {
     position: absolute;
     visibility: hidden;
     opacity: 0;
@@ -67,12 +67,10 @@ body {
     font-size: 18px;
 }
 
-.todo-component__warning--shown {
+.todo-component__warning.todo-component__warning--shown {
     position: relative;
     visibility: visible;
     opacity: 1;
-    color: red;
-    font-size: 18px;
 }
 
 .todo-component .todo-component__list-button-row {
@@ -90,10 +88,7 @@ body {
     cursor: pointer;
 }
 
-.todo-component .todo-component__todo-item--shown {
-    position: relative;
-    visibility: visible;
-    opacity: 1;
+.todo-component .todo-component__todo-item{
     display: flex;
     margin-bottom: 10px;
     padding-left: 20px;
@@ -103,19 +98,16 @@ body {
     background-color: #f2f2f2;
     border-radius: 10px;
 }
+.todo-component .todo-component__todo-item.todo-component__todo-item--shown {
+    position: relative;
+    visibility: visible;
+    opacity: 1;
+}
 
-.todo-component .todo-component__todo-item--hidden {
+.todo-component .todo-component__todo-item.todo-component__todo-item--hidden {
     position: absolute;
     visibility: hidden;
     opacity: 0;
-    display: flex;
-    margin-bottom: 10px;
-    padding-left: 20px;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    background-color: #f2f2f2;
-    border-radius: 10px;
 }
 
 .todo-component .todo-component__todo-item-text {
