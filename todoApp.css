@@ -79,7 +79,7 @@ body {
     flex-direction: row;
 }
 
-.todo-component .list-button {
+.todo-component .list-button-row__button {
     display: flex;
     margin: 5px;
     padding: 5px;
@@ -89,8 +89,8 @@ body {
     cursor: pointer;
 }
 
-.todo-component .list-button.list-button--selected {
-    border: 1px solid #9146ea;
+.todo-component .list-button-row__button.list-button-row__button--selected {
+    background-color: #9146ea;
 }
 
 .todo-component .todo-component__todo-item{
@@ -137,6 +137,10 @@ body {
 }
 
 .todo-component .todo-component__todo-item:hover .todo-component__trash-btn {
+    opacity: 100;
+}
+
+.todo-component .todo-component__trash-btn:focus {
     opacity: 100;
 }
 
