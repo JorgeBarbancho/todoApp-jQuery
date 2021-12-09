@@ -222,12 +222,12 @@ $.widget('custom.todoItem', {
             .addClass(selectors.todoItemText)
             .text(this.options.value)
 
-        this.changer = $("<button><i class=\"fas fa-trash todo-component__trash-btn-icon\"></i></button>")
+        this.trashButton = $("<button><i class=\"fas fa-trash todo-component__trash-btn-icon\"></i></button>")
             .appendTo(this.element)
             .addClass(selectors.trashButton)
             .button();
 
-        this._on(this.changer, {
+        this._on(this.trashButton, {
             click: 'remove'
         });
 
