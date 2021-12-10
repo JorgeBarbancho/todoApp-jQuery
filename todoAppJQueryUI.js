@@ -1,270 +1,245 @@
 $.widget('custom.todoComponent', {
     options: {
         selectors: {
-            button: '<button/>',
-            div: '<div/>',
-            h3: '<h3/>',
-            label: '<label/>',
-            form: '<form/>',
-            formInput: '<input placeholder="Add your new todo">',
-            p: '<p/>',
-            btn: 'btn',
-            header: 'todo-component__header',
-            inputForm: 'todo-component__input-form',
-            listButtonRow: 'list-button-row',
-            pendingRow: 'todo-component__pending-row',
-            pendingText: 'todo-component__pending-text',
-            textInput: 'todo-component__input',
-            todoList: 'todo-component__todo-list',
-            validationWarning: 'todo-component__validation-warning',
-        },
-        classes: {
+            addButton: '.btn__add-btn',
+            clearButton: '.btn__clear-btn',
+            input: '.todo-component__input',
+            pendingText: '.todo-component__pending-text',
             todoList: '.todo-component__todo-list',
-            pendingText: '.todo-component__pending-text'
-        },
-        pendingTasks: 0,
-    },
-    _create: function () {
-        const selectors = this.options.selectors
-        this.header = $(selectors.h3)
-            .appendTo(this.element)
-            .addClass(selectors.header)
-            .text('Todo App')
-
-        this.inputForm = $(selectors.form)
-            .appendTo(this.element)
-            .addClass(selectors.inputForm)
-
-        this.inputText = $(selectors.formInput)
-            .appendTo(this.inputForm)
-            .addClass(selectors.textInput)
-
-        this.addButton = $(selectors.button)
-            .appendTo(this.inputForm)
-            .addClass(selectors.btn)
-            .text('+')
-            .button()
-
-        this.validationWarning = $(selectors.div)
-            .appendTo(this.element)
-            .addClass(selectors.validationWarning)
-            .text('Enter some Text!')
-
-        this.listButtonRow = $(selectors.div)
-            .appendTo(this.element)
-            .addClass(selectors.listButtonRow)
-            .listButtonRow()
-
-        this.todoList = $(selectors.div)
-            .appendTo(this.element)
-            .addClass(selectors.todoList)
-
-        this.pendingRow = $(selectors.div)
-            .appendTo(this.element)
-            .addClass(selectors.pendingRow)
-
-        this.pendingText = $(selectors.p)
-            .appendTo(this.pendingRow)
-            .addClass(selectors.pendingText)
-            .text('You have 0 pending tasks')
-
-        this.clearButton = $(selectors.button)
-            .appendTo(this.pendingRow)
-            .addClass(selectors.btn)
-            .text('Clear all')
-            .button()
-
-        this._on(this.addButton, {
-            click: "addNewTask"
-        });
-
-        this._on(this.clearButton, {
-            click: "clearAllTasks"
-        });
-    },
-
-    addNewTask: function (event) {
-        event.preventDefault();
-        let newInput = $('.todo-component__input');
-        if (newInput.val().length !== 0) {
-            $(this.options.selectors.label).todoItem({value: newInput.val()});
-            newInput.val("");
-            $('.todo-component__validation-warning--shown').removeClass("todo-component__validation-warning--shown");
-            this.options.pendingTasks++;
-            this.updateTaskText();
-        } else {
-            $('.todo-component__validation-warning').addClass("todo-component__validation-warning--shown");
-        }
-        //$(".list-button-row").listButtonRow("showAll");
-    },
-
-    clearAllTasks: function () {
-        $(this.options.classes.todoList).html("");
-        this.options.pendingTasks = 0;
-        this.updateTaskText();
-    },
-
-    updateTaskText: function () {
-        let taskText = this.options.pendingTasks === 1 ? 'task' : 'tasks';
-        $(this.options.classes.pendingText).text(`You have ${this.options.pendingTasks} pending ${taskText}`);
-    },
-
-    addPendingTask: function () {
-        this.options.pendingTasks++;
-        this.updateTaskText();
-    },
-
-    removePendingTask: function () {
-        this.options.pendingTasks--;
-        this.updateTaskText();
-    }
-});
-
-$.widget('custom.listButtonRow', {
-    options: {
-        buttons: [
-            //    {
-            //        id: 'showAll',
-            //        icon: '...',
-            //    }
-        ],
-        selectedButtonIdx: 0,
-        selectors: {
-            button: '<button/>',
+            validationWarning: '.todo-component__validation-warning',
         },
         classes: {
-            listButtonRow: 'list-button-row__button',
+            listButtonRow: 'list-button-row',
+            warningShown: 'todo-component__validation-warning--shown',
         },
-        onButtonSelected: function (selectedButtonIdx) {
-
-        }
+        tasks: [],
     },
     _create: function () {
         const selectors = this.options.selectors;
         const classes = this.options.classes;
 
-        this.showAllButton = $(selectors.button)
+        this.addButton = $(selectors.addButton).button();
+        this.clearButton = $(selectors.clearButton).button();
+
+        this.listButtonRow = $('<div/>')
+            .appendTo(this.element)
+            .addClass(classes.listButtonRow)
+            .listButtonRow({
+                buttons: [
+                    {
+                        id: 'showAll',
+                        icon: 'fas fa-th',
+                    },
+                    {
+                        icon: 'fas fa-tasks',
+                    },
+                    {
+                        icon: 'fas fa-list',
+                    },
+                ],
+                onButtonSelected: function (selectedButtonIdx) {
+                    console.log(selectedButtonIdx);
+                }
+            })
+
+        this._on(this.addButton, {
+            click: "_addNewTask"
+        });
+
+        this._on(this.clearButton, {
+            click: "_clearAllTasks"
+        });
+    },
+
+    _addNewTask: function (event) {
+        event.preventDefault();
+        const selectors = this.options.selectors;
+        const classes = this.options.classes;
+        const tasks = this.options.tasks;
+        const newInput = $(selectors.input);
+        if (newInput.val().length !== 0) {
+            $('<label/>').todoItem({value: newInput.val()});
+            tasks.push({id: tasks.length + 1, pending: true, text: newInput.val()});
+            newInput.val("");
+            $(selectors.validationWarning).removeClass(classes.warningShown);
+            this._updateTaskText();
+        } else {
+            $(selectors.validationWarning).addClass(classes.warningShown);
+        }
+        $(this.listButtonRow).listButtonRow("showAll");
+    },
+
+    _clearAllTasks: function () {
+        console.log("hola")
+        $(this.options.selectors.todoList).html("");
+        this.options.tasks = [];
+        this._updateTaskText();
+    },
+
+    _updateTaskText: function () {
+        const tasks = this.options.tasks;
+        const taskText = tasks.length === 1 ? 'task' : 'tasks';
+        $(this.options.selectors.pendingText).text(`You have ${tasks.length} pending ${taskText}`);
+    },
+});
+
+$.widget('custom.listButtonRow', {
+    options: {
+        buttons: [],
+        selectedButtonIdx: 0,
+        classes: {
+            listButtonRow: 'list-button-row__button',
+            selectedButton: 'list-button-row__button--selected',
+        },
+    },
+    _create: function () {
+        const classes = this.options.classes;
+        this.showAllButton = $('<button/>')
             .appendTo(this.element)
             .addClass(classes.listButtonRow)
 
-        this.showCompletedButton = $(selectors.button)
+        this.addButtonIcon = $('<i/>')
+            .appendTo(this.showAllButton)
+            .addClass(this.options.buttons[0].icon)
+
+        this.showCompletedButton = $('<button/>')
             .appendTo(this.element)
             .addClass(classes.listButtonRow)
 
-        this.showPendingButton = $(selectors.button)
+        this.completedButtonIcon = $('<i/>')
+            .appendTo(this.showCompletedButton)
+            .addClass(this.options.buttons[1].icon)
+
+        this.showPendingButton = $('<button/>')
             .appendTo(this.element)
             .addClass(classes.listButtonRow)
+
+        this.pendingButtonIcon = $('<i/>')
+            .appendTo(this.showPendingButton)
+            .addClass(this.options.buttons[2].icon)
 
         this._on(this.showAllButton, {
-            click: 'showAll'
+            click: "_showAll"
         });
 
         this._on(this.showCompletedButton, {
-            click: 'showCompleted'
+            click: "_showCompleted"
         });
 
         this._on(this.showPendingButton, {
-            click: 'showPending'
+            click: "_showPending"
         });
     },
 
-    /*showAll: function () {
-        $('.todo-component__todo-item').todo('showTask');
-        this.showAllButton.addClass('list-button-row__button--selected');
-        this.showCompletedButton.removeClass('list-button-row__button--selected');
-        this.showPendingButton.removeClass('list-button-row__button--selected');
+    _showAll: function () {
+        this.options.onButtonSelected(0);
+        this.showAllButton.addClass(this.options.classes.selectedButton);
+        this.showCompletedButton.removeClass(this.options.classes.selectedButton);
+        this.showPendingButton.removeClass(this.options.classes.selectedButton);
     },
 
-    showCompleted: function () {
-        $('.todo-component__todo-item').todo('showIfCompleted');
-        this.showAllButton.removeClass('list-button-row__button--selected');
-        this.showCompletedButton.addClass('list-button-row__button--selected');
-        this.showPendingButton.removeClass('list-button-row__button--selected');
+    _showCompleted: function () {
+        this.options.onButtonSelected(1);
+        this.showAllButton.removeClass(this.options.classes.selectedButton);
+        this.showCompletedButton.addClass(this.options.classes.selectedButton);
+        this.showPendingButton.removeClass(this.options.classes.selectedButton);
     },
 
-    showPending: function () {
-        $('.todo-component__todo-item').todo('showIfPending');
-        this.showAllButton.removeClass('list-button-row__button--selected');
-        this.showCompletedButton.removeClass('list-button-row__button--selected');
-        this.showPendingButton.addClass('list-button-row__button--selected');
-    },*/
+    _showPending: function () {
+        this.options.onButtonSelected(2);
+        this.showAllButton.removeClass(this.options.classes.selectedButton);
+        this.showCompletedButton.removeClass(this.options.classes.selectedButton);
+        this.showPendingButton.addClass(this.options.classes.selectedButton);
+    },
 });
 
 $.widget('custom.todoItem', {
     options: {
-        selectors: {
-            checkbox: '<input type=\"checkbox\"/>',
+        classes: {
+            taskHidden: 'todo-component__todo-item--hidden',
+            taskShown: 'todo-component__todo-item--shown',
             todoItem: 'todo-component__todo-item',
             todoItemCheckbox: 'todo-component__todo-item__checkbox',
             todoItemShown: 'todo-component__todo-item--shown',
             todoItemText: 'todo-component__todo-item-text',
             trashButton: 'todo-component__trash-btn',
         },
-        classes: {
+        selectors: {
             todoComponent: '.todo-component',
             todoList: '.todo-component__todo-list'
+        },
+        icons: {
+            trash: 'fas fa-trash'
         },
         pending: true
     },
     _create: function () {
-        const selectors = this.options.selectors;
+        const classes = this.options.classes;
         this.element
-            .appendTo(this.options.classes.todoList)
-            .addClass(selectors.todoItem)
-            .addClass(selectors.todoItemShown)
+            .appendTo(this.options.selectors.todoList)
+            .addClass(classes.todoItem)
+            .addClass(classes.todoItemShown)
 
-        this.checkbox = $(selectors.checkbox)
+        this.checkbox = $('<input type="checkbox"/>')
             .appendTo(this.element)
-            .addClass(selectors.todoItemCheckbox)
+            .addClass(classes.todoItemCheckbox)
 
-        this.text = $("<p/>")
+        this.text = $('<p/>')
             .appendTo(this.element)
-            .addClass(selectors.todoItemText)
+            .addClass(classes.todoItemText)
             .text(this.options.value)
 
-        this.trashButton = $("<button><i class=\"fas fa-trash todo-component__trash-btn-icon\"></i></button>")
+        this.trashButton = $('<button/>')
             .appendTo(this.element)
-            .addClass(selectors.trashButton)
+            .addClass(classes.trashButton)
             .button();
 
+        this.trashButtonIcon = $('<i/>')
+            .appendTo(this.trashButton)
+            .addClass(this.options.icons.trash)
+
         this._on(this.trashButton, {
-            click: 'remove'
+            click: '_remove'
         });
 
         this._on(this.checkbox, {
-            click: 'toggleTask'
+            click: '_toggleTask'
         });
 
     },
 
-    remove: function () {
+    _remove: function () {
         if (this.options.pending) {
-            $(this.options.classes.todoComponent).todoComponent('removePendingTask');
+            $(this.options.selectors.todoComponent).todoComponent('removePendingTask');
         }
         this.element.remove();
     },
 
-    toggleTask: function () {
+    _toggleTask: function () {
         if (this.options.pending) {
-            $(this.options.classes.todoComponent).todoComponent('removePendingTask');
+            $(this.options.selectors.todoComponent).todoComponent('removePendingTask');
             this.options.pending = false;
         } else {
-            $(this.options.classes.todoComponent).todoComponent('addPendingTask');
+            $(this.options.selectors.todoComponent).todoComponent('addPendingTask');
             this.options.pending = true;
         }
     },
 
     showTask: function () {
         this.element
-            .removeClass('todo-component__todo-item--hidden')
-            .addClass('todo-component__todo-item--shown')
+            .removeClass(this.options.classes.taskHidden)
+            .addClass(this.options.classes.taskShown)
     },
 
     hideTask: function () {
         this.element
-            .removeClass('todo-component__todo-item--shown')
-            .addClass('todo-component__todo-item--hidden')
+            .removeClass(this.options.classes.taskShown)
+            .addClass(this.options.classes.taskHidden)
     },
+
+    isPending: function () {
+        return this.options.pending
+    }
 });
 
 $(function () {
