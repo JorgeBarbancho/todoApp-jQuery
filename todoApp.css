@@ -88,11 +88,11 @@ body {
     font-size: 18px;
 }
 
-.todo-component--input-error .todo-component__validation-warning{
+.todo-component--input-error .todo-component__validation-warning {
     display: block;
 }
 
-.todo-component .todo-component__todo-item{
+.todo-component .todo-component__todo-item {
     display: none;
     margin-bottom: 10px;
     padding-left: 20px;
@@ -102,6 +102,7 @@ body {
     background-color: #f2f2f2;
     border-radius: 10px;
 }
+
 .todo-component--showing-all .todo-component__todo-item {
     display: flex;
 }
@@ -113,7 +114,6 @@ body {
 .todo-component--showing-pending .todo-component__todo-item--pending {
     display: flex;
 }
-
 
 .todo-component .todo-component__todo-item-text {
     width: 100%;
