@@ -17,18 +17,25 @@ $.widget('custom.todoComponent', {
             showingPending: 'todo-component--showing-pending',
             inputError: 'todo-component--input-error',
         },
-        tasks: [],
+        _elmCache:{
+            listButtonRow: null,
+            addButton: null,
+            clearButton: null,
+        }
     },
     _create: function () {
-        const selectors = this.options.selectors;
-        const classes = this.options.classes;
+        const component = this;
+        const element = component.element;
+        const selectors = component.options.selectors;
+        const classes = component.options.classes;
+        const elmCache = component.options._elmCache;
 
-        this.element.addClass(classes.showingAll);
+        element.addClass(classes.showingAll);
 
-        this.addButton = $(selectors.addButton).button();
-        this.clearButton = $(selectors.clearButton).button();
+        elmCache.addButton = element.find(selectors.addButton).button();
+        elmCache.clearButton = element.find(selectors.clearButton).button();
 
-        this.listButtonRow = $('<ul/>')
+        elmCache.listButtonRow = $('<ul/>')
             .appendTo(selectors.todoList)
             .listButtonRow({
                 buttons: [
@@ -37,76 +44,95 @@ $.widget('custom.todoComponent', {
                     {icon: 'fas fa-list'},
                 ],
                 onButtonSelected: function (selectedButtonIdx) {
+                    // noinspection FallThroughInSwitchStatementJS
                     switch (selectedButtonIdx) {
+                        default:
+                            console.warn('Selected button not found. Falling back to 0');
+                        case 0:
+                            element
+                                .addClass(classes.showingAll)
+                                .removeClass(classes.showingCompleted)
+                                .removeClass(classes.showingPending);
+                            break;
                         case 1:
-                            $(selectors.todoComponent)
+                            element
                                 .removeClass(classes.showingAll)
                                 .addClass(classes.showingCompleted)
                                 .removeClass(classes.showingPending)
                             break;
                         case 2:
-                            $(selectors.todoComponent)
+                            element
                                 .removeClass(classes.showingAll)
                                 .removeClass(classes.showingCompleted)
                                 .addClass(classes.showingPending);
-                            break;
-                        default:
-                            $(selectors.todoComponent)
-                                .addClass(classes.showingAll)
-                                .removeClass(classes.showingCompleted)
-                                .removeClass(classes.showingPending);
                             break;
                     }
                 }
             })
 
-        this._on(this.addButton, {
+        this._on(elmCache.addButton, {
             click: "_addNewTask"
         });
 
-        this._on(this.clearButton, {
+        this._on(elmCache.clearButton, {
             click: "_clearAllTasks"
         });
     },
 
     _addNewTask: function (event) {
         event.preventDefault();
-        const selectors = this.options.selectors;
-        const classes = this.options.classes;
-        const tasks = this.options.tasks;
-        const input = $(selectors.input);
+        const component = this;
+        const element = component.element;
+        const options = component.options;
+        const selectors = options.selectors;
+        const classes = options.classes;
+        const input = element.find(selectors.input);
         if (input.val().length !== 0) {
-            let newTodo = $('<label/>');
-            newTodo.todoItem({
-                id: tasks.length + 1,
+            const newListElm = $('<li/>')
+            const newTodoElm = $('<label/>');
+            newTodoElm.todoItem({
                 value: input.val(),
+                onRemoveClicked: function () {
+                    newTodoElm.todoItem('destroy');
+                    newTodoElm.remove();
+                    component._updateTaskText();
+                },
+                onCheckboxClicked: function () {
+                    component._updateTaskText();
+                }
             });
-            tasks.push({id: tasks.length + 1, item: newTodo, pending: true, text: input.val()});
-            input.val("");
-            this.element.removeClass(classes.inputError);
-            this.updateTaskText();
+            const todoListElm = element.find(selectors.todoList);
+            newTodoElm.appendTo(newListElm);
+            newListElm.appendTo(todoListElm);
+            input.val('');
+            element.removeClass(classes.inputError);
+            component._updateTaskText();
         } else {
-            this.element.addClass(classes.inputError);
+            element.addClass(classes.inputError);
         }
     },
 
     _clearAllTasks: function () {
-        $(this.options.selectors.todoItem).remove();
-        this.options.tasks = [];
-        this.updateTaskText();
+        const component = this;
+        const todoItems = component.element.find(component.options.selectors.todoItem)
+        todoItems.todoItem('destroy');
+        todoItems.remove();
+        component._updateTaskText();
     },
 
-    updateTaskText: function () {
-        const pendingTasksCount = $(this.options.selectors.todoItemPending).length
+    _destroy: function () {
+        const component = this;
+        component._superApply(arguments);
+        component.element.find(component.options.selectors.todoItem).todoItem('destroy');
+        component.listButtonRow.listButtonRow('destroy');
+    },
+
+    _updateTaskText: function () {
+        const component = this;
+        const selectors = component.options.selectors;
+        const pendingTasksCount = $(selectors.todoItemPending).length
         const taskText = pendingTasksCount === 1 ? 'task' : 'tasks';
-        $(this.options.selectors.pendingText).text(`You have ${pendingTasksCount} pending ${taskText}`);
-    },
-
-    removeTask: function (taskId) {
-        const tasks = this.options.tasks;
-        let task = tasks.find(task => task.id === taskId);
-        tasks.splice(tasks.indexOf(task), 1);
-        this.updateTaskText();
+        component.element.find(selectors.pendingText).text(`You have ${pendingTasksCount} pending ${taskText}`);
     },
 });
 
@@ -124,6 +150,9 @@ $.widget('custom.listButtonRow', {
         },
         selectors: {
             todoComponent: '.todo-component',
+        },
+        _elmCache: {
+          buttons: [],
         },
         onButtonSelected: function (index) {
         }
@@ -145,40 +174,46 @@ $.widget('custom.listButtonRow', {
 
             component._on(buttonElm, {
                 click: function () {
-                    component.select(index);
+                    component._select(index);
                 }
             });
             return listElm;
         });
         component.element.append(buttons);
 
-        this._elmCache = {
+        component._elmCache = {
             buttons: buttons,
         };
         this._doSelect(component.options.selectedButtonIdx);
     },
 
-    select: function (index) {
-        if (this.options.selectedButtonIdx !== index) {
-            this.option({
+    _select: function (index) {
+        const component = this;
+        if (component.options.selectedButtonIdx !== index) {
+            component.option({
                 selectedButtonIdx: index
             });
         }
     },
+
     _doSelect: function (index) {
-        // Borrar selected en todos los botones y añadir al que tiene el indice
-        this._elmCache.buttons.map((button, idx) => {
-            if (idx===index){
-                button.children().addClass(this.options.classes.selectedButton)
-            }else{
-                button.children().removeClass(this.options.classes.selectedButton)
+        const component = this;
+        const selectedButtonClass = this.options.classes.selectedButton;
+
+        component._elmCache.buttons.map((button, idx) => {
+            const buttonChildren = button.children();
+            if (idx === index) {
+                buttonChildren.addClass(selectedButtonClass);
+            } else {
+                buttonChildren.removeClass(selectedButtonClass);
             }
         })
-        this.options.onButtonSelected(index);
+        component.options.onButtonSelected(index);
     },
     _setOptions: function () {
-        this._superApply(arguments);
-        this._doSelect(arguments[0].selectedButtonIdx)
+        const component = this;
+        component._superApply(arguments);
+        component._doSelect(arguments[0].selectedButtonIdx)
     },
 });
 
@@ -194,63 +229,74 @@ $.widget('custom.todoItem', {
         },
         selectors: {
             todoComponent: '.todo-component',
-            todoList: '.todo-component__todo-list'
+        },
+        _elmCache: {
+          checkbox: null,
+          trashBtn: null,
         },
         icons: {
             trash: 'fas fa-trash'
         },
-        pending: true
+        onRemoveClicked: function () {
+
+        },
+        onCheckboxClicked: function () {
+
+        }
     },
     _create: function () {
-        const classes = this.options.classes;
-        this.element
-            .appendTo(this.options.selectors.todoList)
+        const component = this;
+        const element = component.element;
+        const classes = component.options.classes;
+        const elmCache = component.options._elmCache;
+        element
             .addClass(classes.todoItem)
-            .addClass(classes.todoItemPending)
+            .addClass(classes.todoItemPending);
 
-        this.checkbox = $('<input type="checkbox"/>')
-            .appendTo(this.element)
+        elmCache.checkbox = $('<input type="checkbox"/>')
+            .appendTo(element)
             .addClass(classes.todoItemCheckbox)
 
-        this.text = $('<p/>')
-            .appendTo(this.element)
+        $('<p/>')
             .addClass(classes.todoItemText)
-            .text(this.options.value)
+            .text(component.options.value)
+            .appendTo(component.element)
 
-        this.trashButton = $('<button/>')
-            .appendTo(this.element)
+        elmCache.trashButton = $('<button/>')
+            .appendTo(component.element)
             .addClass(classes.trashButton)
             .button();
 
-        this.trashButtonIcon = $('<i/>')
-            .appendTo(this.trashButton)
-            .addClass(this.options.icons.trash)
+        $('<i/>')
+            .appendTo(elmCache.trashButton)
+            .addClass(component.options.icons.trash)
 
-        this._on(this.trashButton, {
+        component._on(elmCache.trashButton, {
             click: '_remove'
         });
 
-        this._on(this.checkbox, {
+        component._on(elmCache.checkbox, {
             click: '_toggleTask'
         });
     },
 
     _remove: function () {
-        this.element.remove();
-        $(this.options.selectors.todoComponent).todoComponent('removeTask', this.options.id);
+        this.options.onRemoveClicked();
     },
 
     _toggleTask: function () {
-        if (this.checkbox.is(':checked')) {
-            this.element
-                .addClass(this.options.classes.todoItemCompleted)
-                .removeClass(this.options.classes.todoItemPending)
+        const component = this;
+        const classes = component.options.classes;
+        if (component.options._elmCache.checkbox.is(':checked')) {
+            component.element
+                .addClass(classes.todoItemCompleted)
+                .removeClass(classes.todoItemPending)
         } else {
-            this.element
-                .addClass(this.options.classes.todoItemPending)
-                .removeClass(this.options.classes.todoItemCompleted)
+            component.element
+                .addClass(classes.todoItemPending)
+                .removeClass(classes.todoItemCompleted)
         }
-        $(this.options.selectors.todoComponent).todoComponent('updateTaskText');
+        component.options.onCheckboxClicked();
     },
 });
 
