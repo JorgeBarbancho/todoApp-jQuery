@@ -5,9 +5,7 @@ $.widget('custom.todoComponent', {
             clearButton: '.btn__clear-btn',
             input: '.todo-component__input',
             pendingText: '.todo-component__pending-text',
-            todoComponent: '.todo-component',
             todoItem: '.todo-component__todo-item',
-            todoItemPending: '.todo-component__todo-item--pending',
             todoList: '.todo-component__todo-list',
             validationWarning: '.todo-component__validation-warning',
         },
@@ -17,26 +15,18 @@ $.widget('custom.todoComponent', {
             showingPending: 'todo-component--showing-pending',
             inputError: 'todo-component--input-error',
         },
-        _elmCache:{
-            listButtonRow: null,
-            addButton: null,
-            clearButton: null,
-        }
     },
     _create: function () {
         const component = this;
         const element = component.element;
         const selectors = component.options.selectors;
         const classes = component.options.classes;
-        const elmCache = component.options._elmCache;
 
         element.addClass(classes.showingAll);
-
-        elmCache.addButton = element.find(selectors.addButton).button();
-        elmCache.clearButton = element.find(selectors.clearButton).button();
-
-        elmCache.listButtonRow = $('<ul/>')
-            .appendTo(selectors.todoList)
+        const addButton = element.find(selectors.addButton);
+        const clearButton = element.find(selectors.clearButton);
+        const listButtonRow = $('<ul/>')
+            .appendTo(element.find(selectors.todoList))
             .listButtonRow({
                 buttons: [
                     {icon: 'fas fa-th'},
@@ -70,13 +60,19 @@ $.widget('custom.todoComponent', {
                 }
             })
 
-        this._on(elmCache.addButton, {
+        this._on(addButton, {
             click: "_addNewTask"
         });
 
-        this._on(elmCache.clearButton, {
+        this._on(clearButton, {
             click: "_clearAllTasks"
         });
+
+        component._elmCache = {
+            addButton: addButton,
+            clearButton: clearButton,
+            listButtonRow: listButtonRow
+        }
     },
 
     _addNewTask: function (event) {
@@ -130,7 +126,12 @@ $.widget('custom.todoComponent', {
     _updateTaskText: function () {
         const component = this;
         const selectors = component.options.selectors;
-        const pendingTasksCount = $(selectors.todoItemPending).length
+        let pendingTasksCount = 0;
+        component.element.find(selectors.todoItem).each(function () {
+            if ($(this).todoItem("isPending")) {
+                pendingTasksCount++;
+            }
+        });
         const taskText = pendingTasksCount === 1 ? 'task' : 'tasks';
         component.element.find(selectors.pendingText).text(`You have ${pendingTasksCount} pending ${taskText}`);
     },
@@ -138,7 +139,6 @@ $.widget('custom.todoComponent', {
 
 $.widget('custom.listButtonRow', {
     options: {
-        buttons: [],
         selectedButtonIdx: 0,
         classes: {
             listButtonRow: 'list-button-row',
@@ -150,9 +150,6 @@ $.widget('custom.listButtonRow', {
         },
         selectors: {
             todoComponent: '.todo-component',
-        },
-        _elmCache: {
-          buttons: [],
         },
         onButtonSelected: function (index) {
         }
@@ -230,10 +227,6 @@ $.widget('custom.todoItem', {
         selectors: {
             todoComponent: '.todo-component',
         },
-        _elmCache: {
-          checkbox: null,
-          trashBtn: null,
-        },
         icons: {
             trash: 'fas fa-trash'
         },
@@ -248,12 +241,11 @@ $.widget('custom.todoItem', {
         const component = this;
         const element = component.element;
         const classes = component.options.classes;
-        const elmCache = component.options._elmCache;
         element
             .addClass(classes.todoItem)
             .addClass(classes.todoItemPending);
 
-        elmCache.checkbox = $('<input type="checkbox"/>')
+        const checkbox = $('<input type="checkbox"/>')
             .appendTo(element)
             .addClass(classes.todoItemCheckbox)
 
@@ -262,22 +254,27 @@ $.widget('custom.todoItem', {
             .text(component.options.value)
             .appendTo(component.element)
 
-        elmCache.trashButton = $('<button/>')
+        const trashButton = $('<button/>')
             .appendTo(component.element)
             .addClass(classes.trashButton)
             .button();
 
         $('<i/>')
-            .appendTo(elmCache.trashButton)
+            .appendTo(trashButton)
             .addClass(component.options.icons.trash)
 
-        component._on(elmCache.trashButton, {
+        component._on(trashButton, {
             click: '_remove'
         });
 
-        component._on(elmCache.checkbox, {
+        component._on(checkbox, {
             click: '_toggleTask'
         });
+
+        component._elmCache = {
+            checkbox: checkbox,
+            trashBtn: trashButton,
+        }
     },
 
     _remove: function () {
@@ -287,7 +284,7 @@ $.widget('custom.todoItem', {
     _toggleTask: function () {
         const component = this;
         const classes = component.options.classes;
-        if (component.options._elmCache.checkbox.is(':checked')) {
+        if (component._elmCache.checkbox.is(':checked')) {
             component.element
                 .addClass(classes.todoItemCompleted)
                 .removeClass(classes.todoItemPending)
@@ -298,6 +295,10 @@ $.widget('custom.todoItem', {
         }
         component.options.onCheckboxClicked();
     },
+
+    isPending: function () {
+        return !this._elmCache.checkbox.is(':checked');
+    }
 });
 
 $(function () {
